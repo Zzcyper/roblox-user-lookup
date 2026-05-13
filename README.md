@@ -1,4 +1,4 @@
-# RoLookup | Roblox User Lookup Web App
+# ZnLookup | Roblox User Lookup Web App
 
 A modern Flask web application for looking up public Roblox user profiles.  
 Built with Python, Flask, Bootstrap 5, and Roblox public APIs.

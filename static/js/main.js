@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'rolookup_recents';
+const STORAGE_KEY = 'znlookup_recents';
 const MAX_RECENTS = 8;
 
 function getRecents() {
@@ -91,8 +91,8 @@ function shareProfile(username) {
   const url = window.location.href;
   if (navigator.share) {
     navigator.share({
-      title: `${username} — RoLookup`,
-      text:  `Check out ${username}'s Roblox profile on RoLookup!`,
+      title: `${username} — ZnLookup`,
+      text:  `Check out ${username}'s Roblox profile on ZnLookup!`,
       url,
     }).catch(() => {});
   } else {
