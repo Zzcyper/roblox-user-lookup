@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container py-5">
 
-  <!-- ── Profile Header ───────────────────────────────────────────────────────── -->
+  <!-- Profile Header  -->
   <div class="profile-header-card mb-4">
     <div class="row align-items-start g-4">
 
@@ -99,7 +99,7 @@
     </div>
   </div>
 
-  <!-- ── Stats Row ───────────────────────────────────────────────────────────── -->
+  <!-- Stats Row  -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
       <div class="stat-card">
@@ -133,7 +133,7 @@
     </div>
   </div>
 
-  <!-- ── Two-Column Layout ─────────────────────────────────────────────────── -->
+  <!-- Two-Column Layout -->
   <div class="row g-4">
 
     <!-- LEFT: Badges + Groups -->
@@ -201,7 +201,6 @@
 
     </div><!-- /LEFT -->
 
-    <!-- RIGHT: Avatar + Games -->
     <div class="col-lg-8">
 
       <!-- Full body avatar -->
@@ -263,12 +262,11 @@
         </div>
       </div>
 
-    </div><!-- /RIGHT -->
+    </div>
 
-  </div><!-- /row -->
-</div><!-- /container -->
+  </div>
+</div>
 
-<!-- Back to top -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <i class="fas fa-chevron-up"></i>
 </button>
@@ -279,21 +277,20 @@
 <script>
   const _headshot  = {{ ('"' ~ user.headshot  ~ '"') | safe if user.headshot  else 'null' }};
   const _fullBody  = {{ ('"' ~ user.full_body  ~ '"') | safe if user.full_body  else 'null' }};
-  let   _showHead  = true;
+  let _showHead  = true;
 
   function toggleAvatar() {
     const img = document.getElementById('avatarImg');
     if (!img || !_fullBody) return;
-    img.src       = _showHead ? _fullBody  : _headshot;
-    _showHead     = !_showHead;
+    img.src = _showHead ? _fullBody  : _headshot;
+    _showHead = !_showHead;
   }
 
-  // Persist to recent searches
   saveRecentSearch({
-    username:    "{{ user.username }}",
+    username: "{{ user.username }}",
     displayName: "{{ user.display_name }}",
-    avatar:      {{ ('"' ~ user.headshot ~ '"') | safe if user.headshot else 'null' }},
-    id:          {{ user.id }}
+    avatar: {{ ('"' ~ user.headshot ~ '"') | safe if user.headshot else 'null' }},
+    id: {{ user.id }}
   });
 </script>
 {% endblock %}
