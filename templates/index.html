@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}RoLookup — Search Roblox Users{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ──────────────────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-glow"></div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+
+        <div class="hero-badge mb-3">
+          <i class="fas fa-gamepad me-2"></i>Roblox User Lookup
+        </div>
+
+        <h1 class="hero-title">
+          Find Any Roblox<br>
+          <span class="text-gradient">Player Profile</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Search for any Roblox user to instantly view their profile,
+          social stats, group memberships, created games, and more.
+        </p>
+
+        <!-- Search form -->
+        <form class="search-form" action="/search" method="GET" id="heroForm">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              name="username"
+              id="mainSearch"
+              placeholder="Enter a Roblox username…"
+              value="{{ searched or '' }}"
+              maxlength="20"
+              autocomplete="off"
+              autofocus
+            />
+            <button type="submit" class="search-btn" id="heroBtn">
+              <span class="btn-text">Search</span>
+              <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+          </div>
+
+          {% if error %}
+          <div class="alert alert-danger mt-3 text-start" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+          </div>
+          {% endif %}
+        </form>
+
+        <!-- Quick-fill suggestions -->
+        <div class="popular-searches mt-4">
+          <span class="text-muted small me-2">Try:</span>
+          <button class="btn btn-sm search-suggest" data-username="Roblox">Roblox</button>
+          <button class="btn btn-sm search-suggest" data-username="Builderman">Builderman</button>
+          <button class="btn btn-sm search-suggest" data-username="ROBLOX">ROBLOX</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Recent Searches ────────────────────────────────────────────────────────── -->
+<section class="container mt-5" id="recentSection" style="display:none;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="text-muted mb-0"><i class="fas fa-history me-2"></i>Recent Searches</h6>
+    <button class="btn btn-sm btn-outline-secondary" onclick="clearRecents()">
+      <i class="fas fa-trash me-1"></i>Clear
+    </button>
+  </div>
+  <div class="row g-3" id="recentGrid"></div>
+</section>
+
+<!-- ── Feature Cards ─────────────────────────────────────────────────────────── -->
+<section class="container mt-5 mb-5">
+  <div class="row g-4 justify-content-center">
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-user"></i></div>
+        <h6 class="feature-title">Profile Info</h6>
+        <p class="feature-desc">Username, display name, user ID, and full account details</p>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+        <h6 class="feature-title">Social Stats</h6>
+        <p class="feature-desc">Friends, followers, and following counts at a glance</p>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-users"></i></div>
+        <h6 class="feature-title">Groups</h6>
+        <p class="feature-desc">View group memberships with roles and icons</p>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-gamepad"></i></div>
+        <h6 class="feature-title">Games</h6>
+        <p class="feature-desc">See games created by the player with visit counts</p>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-medal"></i></div>
+        <h6 class="feature-title">Badges</h6>
+        <p class="feature-desc">Official Roblox account badges and achievements</p>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-clock"></i></div>
+        <h6 class="feature-title">Account Age</h6>
+        <p class="feature-desc">Visual account age tracker with exact join date</p>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-code"></i></div>
+        <h6 class="feature-title">JSON API</h6>
+        <p class="feature-desc">Programmatic access via <code>/api/user/&lt;username&gt;</code></p>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-history"></i></div>
+        <h6 class="feature-title">Recent Searches</h6>
+        <p class="feature-desc">Quickly jump back to recently viewed profiles</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

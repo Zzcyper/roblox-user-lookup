@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }} — RoLookup{% endblock %}
+{% block og_title %}{{ user.username }} on RoLookup{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- ── Profile Header ───────────────────────────────────────────────────────── -->
+  <div class="profile-header-card mb-4">
+    <div class="row align-items-start g-4">
+
+      <!-- Avatar -->
+      <div class="col-auto">
+        <div class="avatar-wrap">
+          {% if user.headshot %}
+            <img src="{{ user.headshot }}" alt="{{ user.username }}'s avatar"
+                 class="profile-avatar" id="avatarImg" />
+          {% else %}
+            <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
+          {% endif %}
+          {% if user.full_body %}
+            <button class="avatar-toggle-btn" onclick="toggleAvatar()"
+                    title="Toggle avatar view">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="col">
+        <!-- Username row -->
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+          <h1 class="profile-username mb-0">{{ user.username }}</h1>
+          {% if user.verified %}
+            <span class="verified-badge" title="Verified Account">
+              <i class="fas fa-check-circle"></i>
+            </span>
+          {% endif %}
+          {% if user.is_banned %}
+            <span class="badge bg-danger ms-1">Banned</span>
+          {% endif %}
+        </div>
+
+        {% if user.display_name != user.username %}
+          <p class="profile-displayname mb-2">{{ user.display_name }}</p>
+        {% endif %}
+
+        <!-- Meta chips -->
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+          <span class="chip chip-id" onclick="copyText('{{ user.id }}', this)"
+                title="Click to copy User ID">
+            <i class="fas fa-id-card me-1"></i>{{ user.id }}
+          </span>
+          <span class="chip chip-date">
+            <i class="fas fa-calendar me-1"></i>{{ user.created }}
+          </span>
+          <span class="chip chip-age">
+            <i class="fas fa-clock me-1"></i>
+            {% if user.age.years > 0 %}{{ user.age.years }}y {% endif %}
+            {% if user.age.months > 0 %}{{ user.age.months }}m {% endif %}
+            {{ user.age.days }}d old
+          </span>
+        </div>
+
+        <!-- Account age bar -->
+        <div class="age-bar-wrap mb-3">
+          <div class="age-bar">
+            <div class="age-bar-fill" style="width: {{ user.age.pct }}%"></div>
+          </div>
+          <small class="text-muted ms-2">{{ user.age.total_days | int }} days ({{ user.age.pct }}% of 10 years)</small>
+        </div>
+
+        <!-- Description -->
+        {% if user.description %}
+          <div class="profile-description mb-3">{{ user.description }}</div>
+        {% endif %}
+
+        <!-- Action buttons -->
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{{ user.profile_url }}" target="_blank" rel="noopener"
+             class="btn btn-primary btn-sm">
+            <i class="fas fa-external-link-alt me-2"></i>View on Roblox
+          </a>
+          <button class="btn btn-outline-secondary btn-sm"
+                  onclick="shareProfile('{{ user.username }}')">
+            <i class="fas fa-share-alt me-2"></i>Share
+          </button>
+          <button class="btn btn-outline-secondary btn-sm"
+                  onclick="copyText('{{ user.username }}', this)">
+            <i class="fas fa-copy me-2"></i>Copy Username
+          </button>
+          <a href="/" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-search me-2"></i>New Search
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Stats Row ───────────────────────────────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-user-friends"></i></div>
+        <div class="stat-value count-up" data-target="{{ user.friends if user.friends is number else 0 }}">
+          {{ user.friends_fmt }}
+        </div>
+        <div class="stat-label">Friends</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-value">{{ user.followers_fmt }}</div>
+        <div class="stat-label">Followers</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+        <div class="stat-value">{{ user.following_fmt }}</div>
+        <div class="stat-label">Following</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="stat-value">{{ user.groups | length }}</div>
+        <div class="stat-label">Groups</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Two-Column Layout ─────────────────────────────────────────────────── -->
+  <div class="row g-4">
+
+    <!-- LEFT: Badges + Groups -->
+    <div class="col-lg-4">
+
+      <!-- Roblox Badges -->
+      {% if user.badges %}
+      <div class="section-card mb-4">
+        <div class="section-card-header">
+          <i class="fas fa-medal me-2 text-warning"></i>Roblox Badges
+          <span class="badge bg-secondary ms-auto">{{ user.badges | length }}</span>
+        </div>
+        <div class="section-card-body">
+          <div class="badges-grid">
+            {% for badge in user.badges %}
+            <div class="badge-item" title="{{ badge.name }}">
+              {% if badge.imageUrl %}
+                <img src="{{ badge.imageUrl }}" alt="{{ badge.name }}" class="badge-img" />
+              {% else %}
+                <div class="badge-placeholder"><i class="fas fa-award"></i></div>
+              {% endif %}
+              <span class="badge-name">{{ badge.name }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Groups -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <i class="fas fa-users me-2 text-primary"></i>Groups
+          <span class="badge bg-secondary ms-auto">{{ user.groups | length }}</span>
+        </div>
+        <div class="section-card-body p-0">
+          {% if user.groups %}
+          <div class="groups-list">
+            {% for item in user.groups %}
+            <a href="https://www.roblox.com/groups/{{ item.group.id }}"
+               target="_blank" rel="noopener" class="group-item">
+              <div class="group-icon-wrap">
+                {% if item.get('icon') %}
+                  <img src="{{ item.icon }}" alt="{{ item.group.name }}" />
+                {% else %}
+                  <i class="fas fa-users"></i>
+                {% endif %}
+              </div>
+              <div class="group-info">
+                <div class="group-name">{{ item.group.name }}</div>
+                <div class="group-role">{{ item.role.name }}</div>
+              </div>
+              <i class="fas fa-chevron-right text-muted ms-auto small"></i>
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="fas fa-users-slash"></i>
+            <p>No public groups</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div><!-- /LEFT -->
+
+    <!-- RIGHT: Avatar + Games -->
+    <div class="col-lg-8">
+
+      <!-- Full body avatar -->
+      {% if user.full_body %}
+      <div class="section-card mb-4">
+        <div class="section-card-header">
+          <i class="fas fa-tshirt me-2"></i>Full Avatar
+          <button class="btn btn-sm btn-outline-secondary ms-auto"
+                  onclick="toggleAvatar()">
+            <i class="fas fa-sync-alt me-1"></i>Toggle View
+          </button>
+        </div>
+        <div class="section-card-body text-center">
+          <img src="{{ user.full_body }}" alt="{{ user.username }}'s full avatar"
+               class="full-body-img" id="fullBodyImg" />
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Games -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <i class="fas fa-gamepad me-2 text-success"></i>Created Games
+          <span class="badge bg-secondary ms-auto">{{ user.games | length }}</span>
+        </div>
+        <div class="section-card-body">
+          {% if user.games %}
+          <div class="row g-3">
+            {% for game in user.games %}
+            <div class="col-sm-6 col-md-4">
+              <a href="https://www.roblox.com/games/{{ game.rootPlace.id if game.rootPlace else '' }}"
+                 target="_blank" rel="noopener" class="game-card">
+                {% if game.get('thumbnail') %}
+                  <img src="{{ game.thumbnail }}" alt="{{ game.name }}"
+                       class="game-thumb" loading="lazy" />
+                {% else %}
+                  <div class="game-thumb-placeholder">
+                    <i class="fas fa-gamepad"></i>
+                  </div>
+                {% endif %}
+                <div class="game-info">
+                  <div class="game-name">{{ game.name }}</div>
+                  {% if game.placeVisits %}
+                  <div class="game-visits">
+                    <i class="fas fa-eye me-1"></i>{{ "{:,}".format(game.placeVisits | int) }}
+                  </div>
+                  {% endif %}
+                </div>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="fas fa-gamepad"></i>
+            <p>No public games found</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div><!-- /RIGHT -->
+
+  </div><!-- /row -->
+</div><!-- /container -->
+
+<!-- Back to top -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const _headshot  = {{ ('"' ~ user.headshot  ~ '"') | safe if user.headshot  else 'null' }};
+  const _fullBody  = {{ ('"' ~ user.full_body  ~ '"') | safe if user.full_body  else 'null' }};
+  let   _showHead  = true;
+
+  function toggleAvatar() {
+    const img = document.getElementById('avatarImg');
+    if (!img || !_fullBody) return;
+    img.src       = _showHead ? _fullBody  : _headshot;
+    _showHead     = !_showHead;
+  }
+
+  // Persist to recent searches
+  saveRecentSearch({
+    username:    "{{ user.username }}",
+    displayName: "{{ user.display_name }}",
+    avatar:      {{ ('"' ~ user.headshot ~ '"') | safe if user.headshot else 'null' }},
+    id:          {{ user.id }}
+  });
+</script>
+{% endblock %}
