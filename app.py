@@ -6,21 +6,17 @@ from datetime import datetime, timezone
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
 
-# ── Roblox API base URLs ──────────────────────────────────────────────────────
-USERS_API        = "https://users.roblox.com"
-THUMBNAILS_API   = "https://thumbnails.roblox.com"
-GROUPS_API       = "https://groups.roblox.com"
-FRIENDS_API      = "https://friends.roblox.com"
-GAMES_API        = "https://games.roblox.com"
+USERS_API = "https://users.roblox.com"
+THUMBNAILS_API = "https://thumbnails.roblox.com"
+GROUPS_API = "https://groups.roblox.com"
+FRIENDS_API = "https://friends.roblox.com"
+GAMES_API = "https://games.roblox.com"
 ACCOUNT_INFO_API = "https://accountinformation.roblox.com"
 
-TIMEOUT = 10  # seconds
+TIMEOUT = 10
 
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def safe(func, *args, **kwargs):
-    """Call func and return None on any exception."""
     try:
         return func(*args, **kwargs)
     except Exception:
@@ -41,20 +37,18 @@ def account_age(created_str: str) -> dict:
     created = datetime.fromisoformat(created_str.replace("Z", "+00:00"))
     now = datetime.now(timezone.utc)
     diff = now - created
-    years  = diff.days // 365
+    years = diff.days // 365
     months = (diff.days % 365) // 30
-    days   = diff.days % 30
-    pct    = min(100, int(diff.days / 3650 * 100))  # % of 10 years
+    days = diff.days % 30
+    pct = min(100, int(diff.days / 3650 * 100))
     return {
-        "years":      years,
-        "months":     months,
-        "days":       days,
+        "years": years,
+        "months": months,
+        "days": days,
         "total_days": diff.days,
-        "pct":        pct,
+        "pct": pct,
     }
 
-
-# ── Roblox API wrappers ───────────────────────────────────────────────────────
 
 def get_user_by_username(username: str):
     resp = requests.post(
@@ -102,7 +96,6 @@ def get_groups(user_id: int) -> list:
 
 
 def get_group_icons(group_ids: list) -> dict:
-    """Batch-fetch group icons; returns {group_id: imageUrl}."""
     resp = requests.get(
         f"{THUMBNAILS_API}/v1/groups/icons",
         params={"groupIds": group_ids, "size": "150x150", "format": "Png"},
@@ -153,14 +146,13 @@ def get_user_games(user_id: int) -> list:
 
 
 def get_game_thumbnails(universe_ids: list) -> dict:
-    """Batch-fetch game thumbnails; returns {universeId: imageUrl}."""
     resp = requests.get(
         f"{THUMBNAILS_API}/v1/games/multiget/thumbnails",
         params={
-            "universeIds":    universe_ids,
-            "size":           "768x432",
-            "format":         "Png",
-            "isCircular":     "false",
+            "universeIds": universe_ids,
+            "size": "768x432",
+            "format": "Png",
+            "isCircular": "false",
             "countPerUniverse": 1,
         },
         timeout=TIMEOUT,
@@ -173,8 +165,6 @@ def get_game_thumbnails(universe_ids: list) -> dict:
             result[entry["universeId"]] = thumbs[0].get("imageUrl")
     return result
 
-
-# ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route("/")
 def index():
@@ -200,19 +190,16 @@ def profile(username: str):
                 searched=username,
             )
 
-        uid     = basic["id"]
+        uid = basic["id"]
         details = get_user_details(uid)
 
-        # --- Avatar ---
-        headshot  = safe(get_avatar_headshot, uid)
+        headshot = safe(get_avatar_headshot, uid)
         full_body = safe(get_avatar_full, uid)
 
-        # --- Social counts ---
-        friends   = safe(get_friends_count,   uid)
+        friends = safe(get_friends_count, uid)
         followers = safe(get_followers_count, uid)
         following = safe(get_following_count, uid)
 
-        # --- Groups (with batch icon fetch) ---
         groups = safe(get_groups, uid) or []
         if groups:
             group_ids = [g["group"]["id"] for g in groups]
@@ -221,44 +208,41 @@ def profile(username: str):
                 g["icon"] = icons.get(g["group"]["id"])
         groups = groups[:12]
 
-        # --- Games (with batch thumbnail fetch) ---
         games = safe(get_user_games, uid) or []
         games = games[:6]
         if games:
             universe_ids = [g["id"] for g in games]
-            thumbnails   = safe(get_game_thumbnails, universe_ids) or {}
+            thumbnails = safe(get_game_thumbnails, universe_ids) or {}
             for g in games:
                 g["thumbnail"] = thumbnails.get(g["id"])
 
-        # --- Official Roblox badges ---
         roblox_badges = safe(get_roblox_badges, uid) or []
 
-        # --- Dates & age ---
-        created_dt      = datetime.fromisoformat(details["created"].replace("Z", "+00:00"))
+        created_dt = datetime.fromisoformat(details["created"].replace("Z", "+00:00"))
         created_display = created_dt.strftime("%B %d, %Y")
-        age             = account_age(details["created"])
+        age = account_age(details["created"])
 
         user = {
-            "id":           uid,
-            "username":     details["name"],
+            "id": uid,
+            "username": details["name"],
             "display_name": details["displayName"],
-            "description":  (details.get("description") or "").strip(),
-            "created":      created_display,
-            "age":          age,
-            "is_banned":    details.get("isBanned", False),
-            "verified":     details.get("hasVerifiedBadge", False),
-            "headshot":     headshot,
-            "full_body":    full_body,
-            "groups":       groups,
-            "friends":      friends,
-            "followers":    followers,
-            "following":    following,
-            "friends_fmt":  format_number(friends),
-            "followers_fmt":format_number(followers),
-            "following_fmt":format_number(following),
-            "badges":       roblox_badges,
-            "games":        games,
-            "profile_url":  f"https://www.roblox.com/users/{uid}/profile",
+            "description": (details.get("description") or "").strip(),
+            "created": created_display,
+            "age": age,
+            "is_banned": details.get("isBanned", False),
+            "verified": details.get("hasVerifiedBadge", False),
+            "headshot": headshot,
+            "full_body": full_body,
+            "groups": groups,
+            "friends": friends,
+            "followers": followers,
+            "following": following,
+            "friends_fmt": format_number(friends),
+            "followers_fmt": format_number(followers),
+            "following_fmt": format_number(following),
+            "badges": roblox_badges,
+            "games": games,
+            "profile_url": f"https://www.roblox.com/users/{uid}/profile",
         }
 
         return render_template("profile.html", user=user)
@@ -268,7 +252,7 @@ def profile(username: str):
     except requests.exceptions.Timeout:
         error = "The request timed out. Please try again."
     except requests.exceptions.HTTPError as exc:
-        code  = exc.response.status_code if exc.response is not None else "?"
+        code = exc.response.status_code if exc.response is not None else "?"
         error = f"Roblox API returned an error ({code}). Please try again later."
     except Exception as exc:
         error = f"An unexpected error occurred: {exc}"
@@ -276,38 +260,35 @@ def profile(username: str):
     return render_template("index.html", error=error, searched=username)
 
 
-# ── JSON API endpoint ─────────────────────────────────────────────────────────
-
 @app.route("/api/user/<username>")
 def api_user(username: str):
-    """Public JSON API — returns basic profile data."""
     try:
         basic = get_user_by_username(username)
         if not basic:
             return jsonify({"error": "User not found"}), 404
 
-        uid     = basic["id"]
+        uid = basic["id"]
         details = get_user_details(uid)
-        headshot  = safe(get_avatar_headshot, uid)
-        friends   = safe(get_friends_count,   uid)
+        headshot = safe(get_avatar_headshot, uid)
+        friends = safe(get_friends_count, uid)
         followers = safe(get_followers_count, uid)
         following = safe(get_following_count, uid)
-        groups    = safe(get_groups, uid) or []
+        groups = safe(get_groups, uid) or []
 
         return jsonify({
-            "id":             uid,
-            "username":       details["name"],
-            "displayName":    details["displayName"],
-            "description":    details.get("description", ""),
-            "created":        details["created"],
-            "isBanned":       details.get("isBanned", False),
+            "id": uid,
+            "username": details["name"],
+            "displayName": details["displayName"],
+            "description": details.get("description", ""),
+            "created": details["created"],
+            "isBanned": details.get("isBanned", False),
             "hasVerifiedBadge": details.get("hasVerifiedBadge", False),
-            "avatar":         headshot,
-            "friends":        friends,
-            "followers":      followers,
-            "following":      following,
-            "groupCount":     len(groups),
-            "profileUrl":     f"https://www.roblox.com/users/{uid}/profile",
+            "avatar": headshot,
+            "friends": friends,
+            "followers": followers,
+            "following": following,
+            "groupCount": len(groups),
+            "profileUrl": f"https://www.roblox.com/users/{uid}/profile",
         })
 
     except Exception as exc:

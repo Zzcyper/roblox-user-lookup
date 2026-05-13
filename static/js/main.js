@@ -1,8 +1,3 @@
-/* ============================================================
-   RoLookup — main.js
-   ============================================================ */
-
-// ── Recent Searches ──────────────────────────────────────────
 const STORAGE_KEY = 'rolookup_recents';
 const MAX_RECENTS = 8;
 
@@ -52,7 +47,7 @@ function renderRecents() {
   `).join('');
 }
 
-// ── Copy to clipboard ────────────────────────────────────────
+
 function copyText(text, el) {
   const write = () => {
     if (el) {
@@ -81,7 +76,6 @@ function fallbackCopy(text, cb) {
   if (cb) cb();
 }
 
-// ── Toast ────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg) {
   const el = document.getElementById('toastEl');
@@ -92,7 +86,7 @@ function showToast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
 }
 
-// ── Share profile ────────────────────────────────────────────
+
 function shareProfile(username) {
   const url = window.location.href;
   if (navigator.share) {
@@ -107,13 +101,11 @@ function shareProfile(username) {
   }
 }
 
-// ── Back to top ──────────────────────────────────────────────
 window.addEventListener('scroll', () => {
   const btn = document.getElementById('backToTop');
   if (btn) btn.classList.toggle('show', window.scrollY > 400);
 });
 
-// ── Search suggestions (quick-fill) ─────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.search-suggest').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -122,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Loading state on any search form
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', () => {
       const inp = form.querySelector('input[name="username"]');
@@ -137,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRecents();
 });
 
-// ── Utilities ────────────────────────────────────────────────
 function esc(str) {
   const d = document.createElement('div');
   d.appendChild(document.createTextNode(String(str)));
