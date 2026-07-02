@@ -1,15 +1,13 @@
 {% extends "base.html" %}
-{% block title %}{{ user.username }} — ZnLookup{% endblock %}
+{% block title %}{{ user.username }} | ZnLookup{% endblock %}
 {% block og_title %}{{ user.username }} on ZnLookup{% endblock %}
 
 {% block content %}
 <div class="container py-5">
 
-  <!-- Profile Header  -->
   <div class="profile-header-card mb-4">
     <div class="row align-items-start g-4">
 
-      <!-- Avatar -->
       <div class="col-auto">
         <div class="avatar-wrap">
           {% if user.headshot %}
@@ -27,9 +25,7 @@
         </div>
       </div>
 
-      <!-- Info -->
       <div class="col">
-        <!-- Username row -->
         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
           <h1 class="profile-username mb-0">{{ user.username }}</h1>
           {% if user.verified %}
@@ -46,7 +42,6 @@
           <p class="profile-displayname mb-2">{{ user.display_name }}</p>
         {% endif %}
 
-        <!-- Meta chips -->
         <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
           <span class="chip chip-id" onclick="copyText('{{ user.id }}', this)"
                 title="Click to copy User ID">
@@ -63,7 +58,6 @@
           </span>
         </div>
 
-        <!-- Account age bar -->
         <div class="age-bar-wrap mb-3">
           <div class="age-bar">
             <div class="age-bar-fill" style="width: {{ user.age.pct }}%"></div>
@@ -71,12 +65,10 @@
           <small class="text-muted ms-2">{{ user.age.total_days | int }} days ({{ user.age.pct }}% of 10 years)</small>
         </div>
 
-        <!-- Description -->
         {% if user.description %}
           <div class="profile-description mb-3">{{ user.description }}</div>
         {% endif %}
 
-        <!-- Action buttons -->
         <div class="d-flex gap-2 flex-wrap">
           <a href="{{ user.profile_url }}" target="_blank" rel="noopener"
              class="btn btn-primary btn-sm">
@@ -99,7 +91,6 @@
     </div>
   </div>
 
-  <!-- Stats Row  -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
       <div class="stat-card">
@@ -133,13 +124,10 @@
     </div>
   </div>
 
-  <!-- Two-Column Layout -->
   <div class="row g-4">
 
-    <!-- LEFT: Badges + Groups -->
     <div class="col-lg-4">
 
-      <!-- Roblox Badges -->
       {% if user.badges %}
       <div class="section-card mb-4">
         <div class="section-card-header">
@@ -163,7 +151,6 @@
       </div>
       {% endif %}
 
-      <!-- Groups -->
       <div class="section-card">
         <div class="section-card-header">
           <i class="fas fa-users me-2 text-primary"></i>Groups
@@ -199,11 +186,10 @@
         </div>
       </div>
 
-    </div><!-- /LEFT -->
+    </div>
 
     <div class="col-lg-8">
 
-      <!-- Full body avatar -->
       {% if user.full_body %}
       <div class="section-card mb-4">
         <div class="section-card-header">
@@ -220,7 +206,6 @@
       </div>
       {% endif %}
 
-      <!-- Games -->
       <div class="section-card">
         <div class="section-card-header">
           <i class="fas fa-gamepad me-2 text-success"></i>Created Games
@@ -275,14 +260,14 @@
 
 {% block scripts %}
 <script>
-  const _headshot  = {{ ('"' ~ user.headshot  ~ '"') | safe if user.headshot  else 'null' }};
-  const _fullBody  = {{ ('"' ~ user.full_body  ~ '"') | safe if user.full_body  else 'null' }};
-  let _showHead  = true;
+  const _headshot = {{ ('"' ~ user.headshot ~ '"') | safe if user.headshot else 'null' }};
+  const _fullBody = {{ ('"' ~ user.full_body ~ '"') | safe if user.full_body else 'null' }};
+  let _showHead = true;
 
   function toggleAvatar() {
     const img = document.getElementById('avatarImg');
     if (!img || !_fullBody) return;
-    img.src = _showHead ? _fullBody  : _headshot;
+    img.src = _showHead ? _fullBody : _headshot;
     _showHead = !_showHead;
   }
 
