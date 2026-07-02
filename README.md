@@ -39,7 +39,7 @@ Screenshots will be added soon.
 Before running the project, make sure you have:
 
 | Requirement | Version |
-|---|---|
+|---|---| 
 | Python | 3.10+ |
 | pip | Latest recommended |
 
